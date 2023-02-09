@@ -1,6 +1,7 @@
 const tableName = 'user_info'
 const rest = require('../util/rest.util')
 const commonDb = require('../db/commondb.v2')
+const {setGroupName} = require("./work_group.ctrl");
 
 exports.register = (user) => {
 
@@ -23,3 +24,10 @@ exports.register = (user) => {
         return rest.err(false, '注册失败')
     }
 }
+
+const doAfter = async (array) => {
+    console.log(setGroupName(array))
+    await setGroupName(array)
+}
+
+module.exports = {doAfter}

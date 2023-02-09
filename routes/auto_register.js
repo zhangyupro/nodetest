@@ -53,11 +53,12 @@ async function commonRoutes(router, tableName) {
         try {
 
             if (await ctrl.insert(req.body, tableName)) {
-                res(rest.ok(true, '添加成功'))
+                res.json(rest.ok(true, '添加成功'))
             } else {
-                res(rest.err(false, '添加失败'))
+                res.json(rest.err(false, '添加失败'))
             }
         } catch (err) {
+            throw err
             res.json(rest.err(false, err.msg))
         }
     })

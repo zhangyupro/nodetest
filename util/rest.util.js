@@ -22,7 +22,7 @@ exports.err = (data, msg, code) => {
     }
 
     if (!code) {
-        code = 1
+        code = 500
     }
 
     return {
