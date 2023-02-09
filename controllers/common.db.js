@@ -1,5 +1,4 @@
-const dbConn = require('../db_config')
-const e = require("express");
+const dbConn = require('../config/db.config')
 
 exports.insert = function insert(body, res, tableName, doBefore) {
     if (null !== doBefore) {
@@ -192,7 +191,6 @@ exports.page = function (query, tableName, res) {
             if (sortMethod !== 'desc' && sortMethod !== 'asc') {
                 sortMethod = 'desc'
             }
-
             sort += `${sortParam} ${sortMethod} ,`
         }
 
@@ -244,10 +242,3 @@ exports.page = function (query, tableName, res) {
         }
     });
 }
-function a(c) {
-    c()
-}
- function b() {
-    console.log('233')
-}
-a(b)

@@ -31,7 +31,6 @@ router.post('/action/register' ,(req, res) => {
         } else {
             commonDb.insert(req.body, res, tableName)
         }
-
     } catch (err) {
         console.log(err)
     }

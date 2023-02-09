@@ -1,4 +1,4 @@
-const dbConn = require('../db_config')
+const dbConn = require('../config/db.config')
 
 exports.countUsername  =  function countUsername (username) {
     const promisePool = dbConn.promise();
@@ -8,13 +8,5 @@ exports.countUsername  =  function countUsername (username) {
     return rows
 }
 
-async function test (user) {
-    for (const userKey in user) {
-        console.log(userKey)
-        console.log(user[userKey])
-    }
-
-}
-test({username:"lbq", password:"123456"})
 
 

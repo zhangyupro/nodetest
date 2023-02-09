@@ -1,4 +1,4 @@
-const dbConn = require('../db_config').promise()
+const dbConn = require('../config/db.config').promise()
 
 exports.insert = async (body,tableName) => {
     let sql =  `insert into ${tableName} set `
@@ -49,12 +49,9 @@ exports.updateById = async (id, body, tableName) => {
     }
 }
 
-exports.deleteById = async (id, res, tableName) => {
+exports.deleteById = async (id, tableName) => {
     if (!id) {
-        res.json({
-            code: '500',
-            msg: 'id不能为null'
-        })
+        return false
     }
 
     let sql = `delete from ${tableName} where id = ?  `

@@ -1,9 +1,11 @@
 const fs = require('fs')
 const path = require('path')
-const commonDb = require("../controllers/common.db");
+const commonDb = require("../controllers/common.db")
+const commonDbV2 = require('../controllers/commondb.v2')
+const rest = require('../util/rest.util')
 
 // 动态注册路由
-const autoRegister = (app) => {
+const autoRegister = async (app) => {
     // 拿到当前文件夹下所有文件名
     const res = fs.readdirSync(path.resolve(__dirname))
 
@@ -31,7 +33,7 @@ const autoRegister = (app) => {
         // 注册了路由
         app.use(data.prefix, data.router)
 
-        commonRoutes(data.router, data.tableName, data.doBeforeCreate)
+        await commonRoutesV2(data.router, data.tableName)
     }
 }
 
@@ -74,6 +76,66 @@ function commonRoutes (router, tableName) {
             commonDb.page(req.query, tableName, res);
         } catch (err) {
             console.log(err)
+        }
+    })
+
+}
+
+async function commonRoutesV2(router, tableName) {
+    router.delete('/:id', async (req, res) => {
+        try {
+            if (await commonDbV2.deleteById(req.params.id, tableName)) {
+                res.json(rest.ok(true, '删除成功'))
+            } else {
+                res.json(rest.err(false, '删除失败'))
+            }
+        } catch (err) {
+            res.json(rest.err(res, false, err.msg))
+        }
+    })
+
+    router.post('/', async (req, res) => {
+        try {
+
+            if (await commonDbV2.insert(req.body, tableName)) {
+                res(rest.ok(true, '添加成功'))
+            } else {
+                res(rest.err(false, '添加失败'))
+            }
+        } catch (err) {
+            res.json(rest.err(false, err.msg))
+        }
+    })
+
+    router.put('/:id', async (req, res) => {
+        try {
+            let result = await commonDbV2.updateById(req.params.id, req.body, tableName)
+            if (result) {
+                res.json(rest.ok(true, '更新成功'))
+            } else {
+                res.json(rest.err(false, '更新失败'))
+            }
+        } catch (err) {
+            res.json(rest.err(res, false, err.msg))
+        }
+    })
+
+    router.get('/:id', async (req, res) => {
+        try {
+            let result = await commonDbV2.selectById(req.params.id, tableName)
+
+            res.json(rest.ok(result))
+        } catch (err) {
+            res.json(rest.err(null, err.msg))
+        }
+    })
+
+    router.get('/', async (req, res) => {
+        try {
+            let result = await commonDbV2.readList(tableName, req.query)
+            res.json(rest.ok(result))
+        } catch (err) {
+            res.json(rest.err(null, err.msg))
         }
     })
 
