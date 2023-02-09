@@ -35,3 +35,5 @@ router.post('/action/register' ,(req, res) => {
         console.log(err)
     }
 })
+
+console.log("hello");
