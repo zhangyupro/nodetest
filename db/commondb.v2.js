@@ -174,7 +174,6 @@ exports.readList = async (tableName, query) => {
     } catch (err) {
         throw err
     }
-
 }
 
 exports.count = async (tableName, query) =>{

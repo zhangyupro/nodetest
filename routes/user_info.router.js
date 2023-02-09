@@ -1,37 +1,13 @@
-const commonDb = require("../controllers/common.db");
-const userInfoDB = require('../controllers/user_info.db')
+const rest = require("../util/rest.util");
 const router = require('express').Router()
+const userCtrl = require('../controllers/user_info.ctrl')
 
-const prefix = '/user-info'
-const tableName = 'user_info'
-
-module.exports = {router , prefix, tableName}
-
-router.post('/action/register' ,(req, res) => {
+router.post('/action/register', (req, res) => {
     try {
-        if (!req.body.username) {
-            res.json({
-                code: '200',
-                msg: '用户名不能为空'
-            })
-        } else if (! req.body.password) {
-            res.json({
-                code: '200',
-                msg: '密码不能为空'
-            })
-        }
-
-        let count = userInfoDB.countUsername(req.body.username)
-
-        if (count) {
-            res.json({
-                code: '200',
-                msg: '用户已存在'
-            })
-        } else {
-            commonDb.insert(req.body, res, tableName)
-        }
+        res.json(userCtrl.register(req.body))
     } catch (err) {
-        console.log(err)
+        res.json(rest.err(res, false, err.msg))
     }
 })
+
+module.exports = {router}
