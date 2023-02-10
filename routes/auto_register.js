@@ -58,7 +58,6 @@ async function commonRoutes(router, tableName) {
                 res.json(rest.err(false, '添加失败'))
             }
         } catch (err) {
-            throw err
             res.json(rest.err(false, err.msg))
         }
     })

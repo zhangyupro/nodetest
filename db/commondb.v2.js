@@ -84,7 +84,7 @@ exports.selectById = async (id, tableName) => {
 }
 
 exports.readList = async (tableName, query) => {
-    let pagePrefix = 'select * '
+    let pagePrefix = 'select  '
     let sql = `from ${tableName} `
     let sqlParam = []
     if (query) {

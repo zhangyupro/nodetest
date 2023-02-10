@@ -13,6 +13,7 @@ exports.insert = async (body, tableName) => {
         await data.doInsertAfter(body, result)
     }
 
+
     return result
 }
 
@@ -71,7 +72,12 @@ exports.selectList = async (tableName, query) => {
         await data.doSelectListBefore(query)
     }
 
-    let result = await commonDb.readList(tableName, query)
+    let result
+    try {
+        result = await commonDb.readList(tableName, query)
+    } catch (err) {
+        throw err
+    }
 
     if (data.hasOwnProperty('doSelectListAfter')) {
        await data.doSelectListAfter(result)
