@@ -404,3 +404,4 @@ exports.allTables = async () => {
     return res
 }
 
+console.log("sbzy");
