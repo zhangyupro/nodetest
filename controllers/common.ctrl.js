@@ -13,7 +13,6 @@ exports.insert = async (body, tableName) => {
         await data.doInsertAfter(body, result)
     }
 
-
     return result
 }
 
@@ -24,7 +23,7 @@ exports.updateById = async (id, body, tableName) => {
         await data.doUpdateBefore(body)
     }
 
-    let result = await commonDb.updateById(body, tableName)
+    let result = await commonDb.updateById(id, body, tableName)
 
     if (data.hasOwnProperty('doUpdateAfter')) {
         await data.doUpdateAfter(body, result)

@@ -26,7 +26,6 @@ exports.register = (user) => {
 }
 
 const doSelectListAfter = async (array) => {
-    console.log(setGroupName(array))
     await setGroupName(array)
 }
 

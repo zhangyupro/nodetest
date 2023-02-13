@@ -1,19 +1,21 @@
 const dbConn = require('../config/db.config').promise()
 
 exports.insert = async (body,tableName) => {
+    let conn = await dbConn.getConnection()
+
     let sql =  `insert into ${tableName} set `
 
     let sqlParam = []
+    let sqlList = []
     for (const key in body) {
-        sql += ` ${key} = ? ,`
+        sqlList.push(` ${key} = ? `)
 
         sqlParam.push(`${body[key]}`)
     }
-
-    sql = sql.slice(0, sql.length-1)
+    sql += sqlList.join(',')
 
     try {
-        let [body] = await dbConn.query(sql , sqlParam)
+        let [body] = await (conn).query(sql , sqlParam)
 
         return body.affectedRows === 1
     } catch (err) {
@@ -84,25 +86,92 @@ exports.selectById = async (id, tableName) => {
 }
 
 exports.readList = async (tableName, query) => {
-    let pagePrefix = 'select  '
+    let pagePrefix = 'select * '
     let sql = `from ${tableName} `
     let sqlParam = []
     if (query) {
-        let sqlSelect = ''
+        let sqlSelect = []
         for (const key in query) {
             if (key !== 'sort'
                 && key !== 'page'
                 && key !== 'size') {
-                sqlSelect += ` ${key} like ? ,`
+                let [param , endStr] = key.split('-')
 
-                sqlParam.push(`%${query[key]}%`)
+                switch (endStr) {
+                    case 'like':
+                        sqlSelect.push(` ${param} like ? `)
+                        sqlParam.push(`%${query[key]}%`)
+                        continue
+                    case 'llike':
+                        sqlSelect.push(` ${param} like ? `)
+                        sqlParam.push(`${query[key]}%`)
+                        continue
+                    case 'rlike':
+                        sqlSelect.push(` ${param} like ? `)
+                        sqlParam.push(`%${query[key]}`)
+                        continue
+                    case 'left':
+                        sqlSelect.push(` ${param} > ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'lefte':
+                        sqlSelect.push(` ${param} >= ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'right':
+                        sqlSelect.push(` ${param} <= ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'righte':
+                        ssqlSelect.push(` ${param} < ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'not':
+                        sqlSelect.push(` ${param} != ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'in':
+                        let inSql = ` ${param} in ( `
+
+                        if (Array.isArray(query[key])) {
+                            for (let i = 0; i < query[key].length; i++) {
+                                inSql += ` ?,`
+                                sqlParam.push(query[key][i])
+                            }
+                            inSql = inSql.slice(0, inSql.length-1)
+                            inSql += ` ) `
+                        } else {
+                            inSql += ` ? ) `
+                            sqlParam.push(query[key])
+                        }
+                        sqlSelect.push(inSql)
+                        continue
+                    case 'notin':
+                        let notInSql = ` ${param} not in ( `
+
+                        if (Array.isArray(query[key])) {
+                            for (let i = 0; i < query[key].length; i++) {
+                                notInSql += ` ?,`
+                                sqlParam.push(query[key][i])
+                            }
+                            notInSql = notInSql.slice(0, notInSql.length-1)
+                            notInSql += ` ) `
+                        } else {
+                            notInSql += ` ? ) `
+                            sqlParam.push(query[key])
+                        }
+                        sqlSelect.push(notInSql)
+                        continue
+                    default:
+                        sqlSelect.push(` ${param} = ? `)
+                        sqlParam.push(`${query[key]}`)
+                }
             }
         }
 
-        if (sqlSelect) {
+        if (sqlSelect.length > 0) {
             sql += 'where '
-            sql += sqlSelect
-            sql = sql.slice(0, sql.length-1);
+            sql += sqlSelect.join('and')
         }
     }
 
@@ -124,7 +193,7 @@ exports.readList = async (tableName, query) => {
 
     let sort = ''
     if(query && query.hasOwnProperty('sort')) {
-        sort += 'order by '
+        sort += ' order by '
 
         let sortArray = []
 
@@ -155,7 +224,7 @@ exports.readList = async (tableName, query) => {
         let numPerPage = query.size * 1
         let skip = (query.page-1) * numPerPage;
 
-        limit += 'limit ?, ? '
+        limit += ' limit ?, ? '
 
         sqlParam.push(skip)
         sqlParam.push(numPerPage)
@@ -181,18 +250,88 @@ exports.count = async (tableName, query) =>{
     let sql = `from ${tableName} `
     let sqlParam = []
     if (query) {
-        let sqlSelect = ''
+        let sqlSelect = []
         for (const key in query) {
-            if (key !== 'sort' && key !== 'page' && key !== 'size')
-            sqlSelect += ` ${key} like ? ,`
+            if (key !== 'sort'
+                && key !== 'page'
+                && key !== 'size') {
+                let [param , endStr] = key.split('-')
 
-            sqlParam.push(`%${query[key]}%`)
+                switch (endStr) {
+                    case 'like':
+                        sqlSelect.push(` ${param} like ? `)
+                        sqlParam.push(`%${query[key]}%`)
+                        continue
+                    case 'llike':
+                        sqlSelect.push(` ${param} like ? `)
+                        sqlParam.push(`${query[key]}%`)
+                        continue
+                    case 'rlike':
+                        sqlSelect.push(` ${param} like ? `)
+                        sqlParam.push(`%${query[key]}`)
+                        continue
+                    case 'left':
+                        sqlSelect.push(` ${param} > ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'lefte':
+                        sqlSelect.push(` ${param} >= ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'right':
+                        sqlSelect.push(` ${param} <= ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'righte':
+                        ssqlSelect.push(` ${param} < ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'not':
+                        sqlSelect.push(` ${param} != ? `)
+                        sqlParam.push(`${query[key]}`)
+                        continue
+                    case 'in':
+                        let inSql = ` ${param} in ( `
+
+                        if (Array.isArray(query[key])) {
+                            for (let i = 0; i < query[key].length; i++) {
+                                inSql += ` ?,`
+                                sqlParam.push(query[key][i])
+                            }
+                            inSql = inSql.slice(0, inSql.length-1)
+                            inSql += ` ) `
+                        } else {
+                            inSql += ` ? ) `
+                            sqlParam.push(query[key])
+                        }
+                        sqlSelect.push(inSql)
+                        continue
+                    case 'notin':
+                        let notInSql = ` ${param} not in ( `
+
+                        if (Array.isArray(query[key])) {
+                            for (let i = 0; i < query[key].length; i++) {
+                                notInSql += ` ?,`
+                                sqlParam.push(query[key][i])
+                            }
+                            notInSql = notInSql.slice(0, notInSql.length-1)
+                            notInSql += ` ) `
+                        } else {
+                            notInSql += ` ? ) `
+                            sqlParam.push(query[key])
+                        }
+                        sqlSelect.push(notInSql)
+                        continue
+                    default:
+                        sqlSelect.push(` ${param} = ? `)
+                        sqlParam.push(`${query[key]}`)
+                }
+            }
         }
 
-        if (sqlSelect) {
+        if (sqlSelect.length > 0) {
             sql += 'where '
-            sql += sqlSelect
-            sql = sql.slice(0, sql.length-1);
+            sql += sqlSelect.join('and')
         }
     }
 
@@ -203,4 +342,21 @@ exports.count = async (tableName, query) =>{
     } catch (err) {
         throw err
     }
+}
+
+exports.model = async (tableName) => {
+    let sql = `select * from information_schema.COLUMNS where TABLE_SCHEMA = 'test' and TABLE_NAME = ?`
+
+    let [res] = await dbConn.query(sql, tableName)
+
+    return res
+}
+
+
+exports.allTables = async () => {
+    let sql = `show tables`
+
+    let [res] = await dbConn.query(sql)
+
+    return res
 }
