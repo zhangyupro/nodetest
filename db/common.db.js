@@ -242,3 +242,6 @@ exports.page = function (query, tableName, res) {
         }
     });
 }
+
+
+console.log('a');
