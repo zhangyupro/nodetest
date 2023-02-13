@@ -16,6 +16,20 @@ exports.insert = async (body, tableName) => {
     return result
 }
 
+exports.batchDelete =async(body,tableName) =>{
+    const data=require(`../controllers/${tableName}.ctrl`)
+    if (data.hasOwnProperty('doBatchDeleteBefore')) {
+        await data.doBatchDeleteBefore(body)
+    }
+
+    let result = await commonDb.batchDelete(body,tableName)
+
+    if (data.hasOwnProperty('doBatchDeleteAfter')) {
+        await data.doBatchDeleteAfter(body)
+    }
+    return result
+}
+
 exports.updateById = async (id, body, tableName) => {
     const data = require(`../controllers/${tableName}.ctrl`)
 

@@ -93,6 +93,16 @@ async function commonRoutes(router, tableName) {
             res.json(rest.err(null, err.msg))
         }
     })
+    
+    //批量删除
+    router.delete('/action/batch',async(req,res)=>{
+        try{
+            let result =await ctrl.batchDelete(req.body,tableName)
+            res.json(rest.ok(result))
+        }catch(err){
+            res.json(rest.err(res,false,err.msg))
+        }
+    })
 
 }
 

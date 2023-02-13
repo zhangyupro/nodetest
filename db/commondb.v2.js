@@ -23,6 +23,30 @@ exports.insert = async (body,tableName) => {
     }
 }
 
+
+exports.batchDelete=async(body,tableName)=>{
+    let conn = await dbConn.getConnection()
+    let sql=`delete from ${tableName} where id in (`
+    let sqlParam=[]
+    body.forEach((element)=>{
+        sql +=`?,`
+        sqlParam.push(element.id)
+        
+    })
+    sql= sql.slice(0,sql.length-1)
+    sql +=`)`
+    console.log(sql);
+    console.log(sqlParam);
+    try{
+        let [body]=await(conn).query(sql,sqlParam)
+        return body.affectedRows >= 1
+    }
+    catch(err){
+        throw err
+    }
+
+}
+
 exports.updateById = async (id, body, tableName) => {
     if (!id) {
         return false
@@ -69,6 +93,8 @@ exports.deleteById = async (id, tableName) => {
 
 exports.selectById = async (id, tableName) => {
 
+
+    console.log(11111);
     let sql = `select * from ${tableName} where id = ?`
 
     try {
@@ -360,3 +386,4 @@ exports.allTables = async () => {
 
     return res
 }
+
