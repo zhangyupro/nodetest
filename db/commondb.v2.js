@@ -1,6 +1,12 @@
 const dbConn = require('../config/db.config').promise()
+const { v4: uuidv4 } = require('uuid');
 
 exports.insert = async (body,tableName) => {
+
+    if (!body.id) {
+        body.id = uuidv4()
+    }
+
     let conn = await dbConn.getConnection()
 
     let sql =  `insert into ${tableName} set `
@@ -10,7 +16,13 @@ exports.insert = async (body,tableName) => {
     for (const key in body) {
         sqlList.push(` ${key} = ? `)
 
-        sqlParam.push(`${body[key]}`)
+        if (typeof body[key] === 'object') {
+            sqlParam.push(JSON.stringify(body[key]))
+        } else {
+            sqlParam.push(`${body[key]}`)
+
+        }
+
     }
     sql += sqlList.join(',')
 
@@ -58,7 +70,12 @@ exports.updateById = async (id, body, tableName) => {
     for (const key in body) {
         sql += ` ${key} = ? ,`
 
-        sqlParam.push(`${body[key]}`)
+        if (typeof body[key] === 'object') {
+            sqlParam.push(JSON.stringify(`${body[key]}`))
+        } else {
+            sqlParam.push(`${body[key]}`)
+
+        }
     }
 
     sql = sql.slice(0, sql.length-1);

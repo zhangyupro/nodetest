@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const ctrl = require('../controllers/common.ctrl')
 const rest = require('../util/rest.util')
+const whiteList = ['auto_register.js', 'wechat.router.js']
 
 // 动态注册路由
 const autoRegister = async (app) => {
@@ -10,7 +11,7 @@ const autoRegister = async (app) => {
 
     for (let i = 0; i < res.length; i++) {
         // 如果是当前auto_register.js文件则不注册
-        if (!res[i].endsWith('.router.js')) {
+        if (whiteList.includes(res[i])) {
             continue
         }
 

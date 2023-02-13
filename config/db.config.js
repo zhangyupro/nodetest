@@ -1,10 +1,11 @@
 const mysql = require('mysql2')
 
 const dbConn = mysql.createPool({
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'root',
-    password: 'l1ub1q1an',
-    database: 'db1'
+    password: 'zsr000210',
+    database: 'test',
+    connectionLimit:100
 })
 
 module.exports = dbConn
