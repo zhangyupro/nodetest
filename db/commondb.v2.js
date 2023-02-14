@@ -281,7 +281,6 @@ exports.readList = async (tableName, query) => {
         } else {
             data.content = []
         }
-        console.log(data)
         return data
     } catch (err) {
         throw err
