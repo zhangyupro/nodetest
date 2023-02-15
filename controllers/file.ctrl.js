@@ -2,13 +2,7 @@ const { log } = require("console");
 const fs = require("fs");
 
 exports.uploadFile = async (req, res) => {
-  if (!req.files) {
-    res.send({
-      code: 400,
-      msg: "上传文件不能为空",
-    });
-    return;
-  }
+
   let files = req.files;
   let ret_files = [];
   try {
@@ -41,28 +35,6 @@ exports.uploadFile = async (req, res) => {
 
 exports.downloadFile = async (req, res) => {
   let file_name = req.query.file_name;
-  // console.log(req.query);
-  // console.log(file_name);
   let file_path = process.cwd() + "/public/upload/" + file_name;
-  // res.setHeader('Content-disposition', 'attachment; filename=data.xlsx');
-  // res.setHeader('Content-Disposition', 'attachment;fileName='+fileName);
-  // res.setHeader('Content-Disposition', 'attachment;fileName='+file_name);
-  // res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-  res.set({
-    "Content-Type": "application/octet-stream", // 告诉浏览器这是一个二进制文件
-    "Content-Disposition": "attachment; filename=" + file_name, // 告诉浏览器这是一个需要下载的文件
-  });
   res.download(file_path);
-  // console.log(res.download);
-  // return 1;
 };
-
-// exports.downloadFile = async (req, res) => {
-//     let file_name = req.query.file_name;
-//     let file_path = process.cwd() + "/public/upload/" + file_name;
-//   res.set({
-//     "Content-Type": "application/octet-stream", //告诉浏览器这是一个二进制文件
-//     "Content-Disposition": "attachment; filename="`${file_name}`, //告诉浏览器这是一个需要下载的文件
-//   });
-//   fs.createReadStream(file_path).pipe(res);
-// };
